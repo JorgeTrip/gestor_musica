@@ -1,0 +1,25 @@
+# PyInstaller / Build outputs
+build/
+dist/
+*.spec
+
+# Python cache & virtual environments
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+env/
+venv/
+
+# User configurations & active databases
+configuracion.json
+*.db
+*.db-journal
+
+# Node.js / Testing dependencies
+node_modules/
+package-lock.json
+
+# Operating System files
+.DS_Store
+Thumbs.db

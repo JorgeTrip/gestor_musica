@@ -1,0 +1,86 @@
+name: CI/CD Pipeline & Automatic Release Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+
+    steps:
+    - name: Checkout Código Fuente
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Configurar Entorno Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Dar Formato y Generar Historial git-log.txt
+      shell: pwsh
+      run: |
+        git log --oneline -n 50 > git-log.txt
+        Get-Content git-log.txt -Head 5
+
+    - name: Auto-Bump de Versión Semántica según Commit Format
+      shell: pwsh
+      run: |
+        $msg = "${{ github.event.head_commit.message }}"
+        $vData = Get-Content version.json | ConvertFrom-Json
+        $parts = $vData.version.Split('.')
+        $major = [int]$parts[0]
+        $minor = [int]$parts[1]
+        $patch = [int]$parts[2]
+
+        if ($msg -match "BREAKING:") {
+          $major++
+          $minor = 0
+          $patch = 0
+        } elif ($msg -match "feat:" -or $msg -match "🚀") {
+          $minor++
+          $patch = 0
+        } else {
+          $patch++
+        }
+
+        $newVer = "$major.$minor.$patch"
+        $vData.version = $newVer
+        $vData.build_date = (Get-Date -Format "yyyy-MM-dd")
+        $vData | ConvertTo-Json | Set-Content version.json
+        Write-Host "Nueva versión semántica calculada: $newVer"
+
+    - name: Instalación de Dependencias de Compilación
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install customtkinter tkinterdnd2 pillow mutagen pyinstaller
+
+    - name: Compilación de Ejecutable Standalone (.exe)
+      run: |
+        python compilarEjecutable.py
+
+    - name: Commit y Push de Archivos de Versión y Changelog
+      shell: pwsh
+      run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "actions@github.com"
+        git add version.json git-log.txt
+        $vData = Get-Content version.json | ConvertFrom-Json
+        $tagVer = "v" + $vData.version
+        git commit -m "chore(release): Se actualiza versión a $tagVer [skip ci]" || exit 0
+        git tag $tagVer
+        git push origin main --tags
+
+    - name: Publicación de GitHub Release con Asset Ejecutable
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: "v${{ env.NEW_VER }}"
+        name: "Release v${{ env.NEW_VER }}"
+        body_path: git-log.txt
+        files: |
+          dist/GestorBibliotecaMusical/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
