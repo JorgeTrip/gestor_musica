@@ -40,7 +40,7 @@ jobs:
           $major++
           $minor = 0
           $patch = 0
-        } elif ($msg -match "feat:" -or $msg -match "🚀") {
+        } elseif ($msg -match "feat:" -or $msg -match "🚀") {
           $minor++
           $patch = 0
         } else {
@@ -51,6 +51,7 @@ jobs:
         $vData.version = $newVer
         $vData.build_date = (Get-Date -Format "yyyy-MM-dd")
         $vData | ConvertTo-Json | Set-Content version.json
+        "NEW_VER=$newVer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         Write-Host "Nueva versión semántica calculada: $newVer"
 
     - name: Instalación de Dependencias de Compilación
