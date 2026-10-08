@@ -58,9 +58,18 @@ def obtener_xml_itunes(ruta_itunes):
 
 def obtener_auto_add_itunes(ruta_itunes):
     if not ruta_itunes: return None
-    ruta_auto = os.path.join(ruta_itunes, "iTunes Media", "Automatically Add to iTunes")
-    os.makedirs(ruta_auto, exist_ok=True)
-    return ruta_auto
+    
+    cand1 = os.path.join(ruta_itunes, "iTunes Media", "Agregar automáticamente a iTunes")
+    cand2 = os.path.join(ruta_itunes, "iTunes Media", "Automatically Add to iTunes")
+    cand3 = os.path.join(ruta_itunes, "Agregar automáticamente a iTunes")
+    cand4 = os.path.join(ruta_itunes, "Automatically Add to iTunes")
+    
+    for cand in [cand1, cand2, cand3, cand4]:
+        if os.path.exists(cand):
+            return cand
+            
+    os.makedirs(cand1, exist_ok=True)
+    return cand1
 
 def obtener_music_dir_itunes(ruta_itunes):
     if not ruta_itunes: return None
