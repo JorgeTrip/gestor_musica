@@ -1,3 +1,5 @@
+6d3c318 fix: Se corrige bloqueo de interfaz y se crean archivos y carpetas directamente en el destino sin modificar la carpeta de origen
+802d5a1 chore(release): Se actualiza versión a v4.2.0 [skip ci]
 aed7ce3 feat: Se implementa organización inteligente de la Biblioteca PC por Artista y Álbum ([año])
 cc75629 chore(release): Se actualiza versión a v4.1.2 [skip ci]
 a7c9783 fix: Se preservan los archivos originales en la carpeta de origen al ingresar al Celular o PC
