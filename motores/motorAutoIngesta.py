@@ -81,7 +81,7 @@ def comprimir_flacs_zip9(lista_flacs, ruta_zip_salida, callback_log=None):
         if callback_log: callback_log(f"  📦 Comprimiendo másteres FLAC (ZIP9): {os.path.basename(ruta_zip_salida)}")
         with zipfile.ZipFile(ruta_zip_salida, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
             for f in lista_flacs:
-                zf.write(f, arcname=os.path.basename(f)); os.remove(f)
+                zf.write(f, arcname=os.path.basename(f))
         return True
     except Exception as e:
         if callback_log: callback_log(f"  ✗ Error comprimiendo ZIP: {e}")
@@ -93,6 +93,13 @@ def procesar_ingesta_lote(lista_rutas, destino_tipo, callback_progreso=None, cal
     dir_auto_add = obtener_ruta_auto_add_activa()
     fecha_hoy = datetime.date.today().strftime("%Y-%m-%d")
     
+    if destino_tipo == "pc":
+        if not ruta_pc_root or not os.path.exists(ruta_pc_root):
+            return False, "Error: No se ha configurado una carpeta válida para la Biblioteca PC.", 0
+    else:
+        if not dir_auto_add:
+            return False, "Error: No se ha detectado la carpeta de auto-ingesta de iTunes.", 0
+
     archivos_validos = []
     for r in lista_rutas:
         if os.path.isfile(r) and r.lower().endswith(('.m4a', '.mp3', '.flac', '.wav')): archivos_validos.append(r)
@@ -109,43 +116,38 @@ def procesar_ingesta_lote(lista_rutas, destino_tipo, callback_progreso=None, cal
     
     for idx, r_src in enumerate(archivos_validos, 1):
         ext = os.path.splitext(r_src)[1].lower()
-        r_trabajo = r_src
-        if ext in ['.flac', '.wav']:
-            m4a_temp = os.path.splitext(r_src)[0] + ".m4a"
-            if convertir_flac_a_m4a(r_src, m4a_temp, callback_log=callback_log):
-                r_trabajo = m4a_temp
-                if destino_tipo == "pc": flacs_para_zip.setdefault(os.path.dirname(r_src), []).append(r_src)
-            else: continue
-                
-        art, tit, alb, anio, pista, disco = extraer_metadatos_completos(r_trabajo)
+        art, tit, alb, anio, pista, disco = extraer_metadatos_completos(r_src)
+        art_c = re.sub(r'[\\/*?:"<>|]', '_', art)
+        alb_c = re.sub(r'[\\/*?:"<>|]', '_', alb)
+        tit_c = re.sub(r'[\\/*?:"<>|]', '_', tit)
         
         if destino_tipo == "celular":
             os.makedirs(dir_auto_add, exist_ok=True)
-            r_dest = os.path.join(dir_auto_add, os.path.basename(r_trabajo))
             if ext in ['.flac', '.wav']:
-                gen_final = procesar_pipeline_celular(r_trabajo, callback_log)
-                shutil.move(r_trabajo, r_dest)
+                r_dest = os.path.join(dir_auto_add, f"{art_c} - {tit_c}.m4a")
+                if convertir_flac_a_m4a(r_src, r_dest, callback_log=callback_log):
+                    gen_final = procesar_pipeline_celular(r_dest, callback_log)
+                else: continue
             else:
+                r_dest = os.path.join(dir_auto_add, os.path.basename(r_src))
                 shutil.copy2(r_src, r_dest)
                 gen_final = procesar_pipeline_celular(r_dest, callback_log)
             registrar_ingesta_historial(fecha_hoy, "Celular (iTunes)", os.path.basename(r_dest), art, tit, alb, anio, pista, gen_final, "OK", "OK")
             verificar_e_iniciar_itunes_minimizado(callback_log)
         else:
-            art_c = re.sub(r'[\\/*?:"<>|]', '_', art)
-            alb_c = re.sub(r'[\\/*?:"<>|]', '_', alb)
-            tit_c = re.sub(r'[\\/*?:"<>|]', '_', tit)
             fold_alb = f"{alb_c} ({anio})" if anio != "ND" else alb_c
             dir_album_pc = os.path.join(ruta_pc_root, art_c, fold_alb)
             if int(disco) > 1: dir_album_pc = os.path.join(dir_album_pc, f"Disco {int(disco)}")
             os.makedirs(dir_album_pc, exist_ok=True)
             
-            ext_trabajo = os.path.splitext(r_trabajo)[1].lower()
-            r_dest = os.path.join(dir_album_pc, f"{pista}. {tit_c}{ext_trabajo}")
-            
             if ext in ['.flac', '.wav']:
-                gen_final = procesar_pipeline_pc(r_trabajo, callback_log)
-                shutil.move(r_trabajo, r_dest)
+                r_dest = os.path.join(dir_album_pc, f"{pista}. {tit_c}.m4a")
+                if convertir_flac_a_m4a(r_src, r_dest, callback_log=callback_log):
+                    gen_final = procesar_pipeline_pc(r_dest, callback_log)
+                    flacs_para_zip.setdefault(dir_album_pc, []).append(r_src)
+                else: continue
             else:
+                r_dest = os.path.join(dir_album_pc, f"{pista}. {tit_c}{ext}")
                 shutil.copy2(r_src, r_dest)
                 gen_final = procesar_pipeline_pc(r_dest, callback_log)
                 
@@ -156,12 +158,11 @@ def procesar_ingesta_lote(lista_rutas, destino_tipo, callback_progreso=None, cal
         if callback_progreso: callback_progreso(idx, total, f"Procesado: {art} - {tit}")
 
     if destino_tipo == "pc" and flacs_para_zip:
-        for dir_flac, lista_f in flacs_para_zip.items():
+        for dir_album_pc, lista_f in flacs_para_zip.items():
             if lista_f:
                 art, tit, alb, anio, pista, disco = extraer_metadatos_completos(lista_f[0])
                 art_c, alb_c = re.sub(r'[\\/*?:"<>|]', '_', art), re.sub(r'[\\/*?:"<>|]', '_', alb)
                 fold_alb = f"{alb_c} ({anio})" if anio != "ND" else alb_c
-                dir_album_pc = os.path.join(ruta_pc_root, art_c, fold_alb)
                 r_zip = os.path.join(dir_album_pc, f"{fold_alb} (FLAC Master).zip")
                 comprimir_flacs_zip9(lista_f, r_zip, callback_log)
 

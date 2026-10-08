@@ -106,10 +106,10 @@ class PestanaAutoIngesta(ctk.CTkFrame):
         if carp: self.procesar_lote_ingresado([carp])
 
     def log(self, mensaje):
-        self.txt_log.insert("end", mensaje + "\n"); self.txt_log.see("end")
+        self.after(0, lambda m=mensaje: (self.txt_log.insert("end", m + "\n"), self.txt_log.see("end")))
 
     def callback_progreso(self, actual, total, mensaje):
-        self.progress_bar.set(actual / max(total, 1))
+        self.after(0, lambda a=actual, t=total: self.progress_bar.set(a / max(t, 1)))
 
     def procesar_lote_ingresado(self, lista_rutas):
         tiene_flac = any(r.lower().endswith(('.flac', '.wav')) or (os.path.isdir(r) and any(f.lower().endswith(('.flac', '.wav')) for _, _, fs in os.walk(r) for f in fs)) for r in lista_rutas)
@@ -122,7 +122,7 @@ class PestanaAutoIngesta(ctk.CTkFrame):
     def iniciar_pipeline_con_destino(self, lista_rutas, destino_tipo):
         if destino_tipo == "pc":
             config = cargar_configuracion()
-            if not config.get("ruta_biblioteca_pc"):
+            if not config.get("ruta_biblioteca_pc") or not os.path.exists(config.get("ruta_biblioteca_pc", "")):
                 ruta_pc = ctk.filedialog.askdirectory(title="Seleccionar Carpeta Raíz de la Biblioteca de Música PC")
                 if not ruta_pc:
                     self.log("⚠ Proceso cancelado: Debe seleccionar una carpeta para la Biblioteca PC.")
@@ -134,5 +134,10 @@ class PestanaAutoIngesta(ctk.CTkFrame):
         threading.Thread(target=self._tarea_pipeline, args=(lista_rutas, destino_tipo), daemon=True).start()
 
     def _tarea_pipeline(self, lista_rutas, destino_tipo):
-        exito, msg, cant = procesar_ingesta_lote(lista_rutas, destino_tipo, self.callback_progreso, self.log)
-        self.log(f"\n{msg}\n"); self.progress_bar.set(1.0)
+        try:
+            exito, msg, cant = procesar_ingesta_lote(lista_rutas, destino_tipo, self.callback_progreso, self.log)
+            self.log(f"\n{msg}\n")
+            self.after(0, lambda e=exito: self.progress_bar.set(1.0 if e else 0.0))
+        except Exception as err:
+            self.log(f"\n❌ Error durante la ingesta: {err}\n")
+            self.after(0, lambda: self.progress_bar.set(0.0))
