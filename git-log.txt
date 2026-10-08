@@ -1,3 +1,5 @@
+4e95bf4 feat: Se implementa la copia intacta de videos musicales para la Biblioteca PC e herencia inteligente de metadatos
+5b6c6bb chore(release): Se actualiza versión a v4.2.2 [skip ci]
 7842520 fix: Se extrae únicamente el año de 4 dígitos de la etiqueta de lanzamiento evitando marcas de tiempo ISO y caracteres prohibidos en Windows
 03d21a5 chore(release): Se actualiza versión a v4.2.1 [skip ci]
 6d3c318 fix: Se corrige bloqueo de interfaz y se crean archivos y carpetas directamente en el destino sin modificar la carpeta de origen
