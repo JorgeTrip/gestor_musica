@@ -1,3 +1,5 @@
+af7d7c0 fix: Se corrige la inicialización de TkinterDnD._require(self) en VentanaPrincipal
+64251c2 chore(release): Se actualiza versión a v4.0.1 [skip ci]
 c1a0674 fix: Se otorga permiso write-all a GitHub Actions para push de tags y releases
 19803bc fix: Se corrige sintaxis elseif de PowerShell en el workflow de CI/CD
 38e3437 fix: Se corrige detección de ejecutable Python313 y lanzamiento directo de exe en script bat
