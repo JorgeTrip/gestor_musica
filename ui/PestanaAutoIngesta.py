@@ -24,6 +24,7 @@ from motores.motorQaac import verificar_qaac_instalado
 from ui.ModalSelectorDestino import ModalSelectorDestino
 from ui.ModalConfiguracionQaac import ModalConfiguracionQaac
 from ui.ModalConfiguracioniTunes import ModalConfiguracioniTunes
+from ui.ModalResumenIngesta import ModalResumenIngesta
 
 class PestanaAutoIngesta(ctk.CTkFrame):
     def __init__(self, parent):
@@ -138,6 +139,8 @@ class PestanaAutoIngesta(ctk.CTkFrame):
             exito, msg, cant = procesar_ingesta_lote(lista_rutas, destino_tipo, self.callback_progreso, self.log)
             self.log(f"\n{msg}\n")
             self.after(0, lambda e=exito: self.progress_bar.set(1.0 if e else 0.0))
+            if exito and cant > 0:
+                self.after(0, lambda c=cant, d=destino_tipo, m=msg: ModalResumenIngesta(self, c, d, m))
         except Exception as err:
             self.log(f"\n❌ Error durante la ingesta: {err}\n")
             self.after(0, lambda: self.progress_bar.set(0.0))

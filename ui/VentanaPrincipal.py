@@ -3,16 +3,21 @@ Ventana Principal Shell (CustomTkinter UI con TkinterDnD) en Modo Oscuro 'Apple 
 GestorBibliotecaMusical v4.0.
 """
 
+import os
 import customtkinter as ctk
 from tkinterdnd2 import TkinterDnD
 from configuracionEstetica import (
     COLOR_FONDO_OSCURO,
     COLOR_TARJETA_OSCURO,
     COLOR_ACENTO_AZUL,
+    COLOR_ACENTO_VERDE,
+    COLOR_ACENTO_NARANJA,
     FUENTE_TITULO,
     FUENTE_NORMAL,
+    FUENTE_PEQUENA,
     TEMA_DEFECTO,
     COLOR_TEMA,
+    cargar_configuracion,
     obtener_ruta_itunes_activa
 )
 
@@ -82,10 +87,21 @@ class VentanaPrincipal(CTkTkinterDnD):
         PestanaHistorial(t6).pack(fill="both", expand=True)
 
     def crear_pie(self):
-        ftr = ctk.CTkFrame(self, fg_color=COLOR_TARJETA_OSCURO, height=30, corner_radius=0)
+        ftr = ctk.CTkFrame(self, fg_color=COLOR_TARJETA_OSCURO, height=36, corner_radius=0)
         ftr.pack(fill="x", side="bottom")
         
-        r_it = obtener_ruta_itunes_activa() or "No detectada"
-        txt_st = f"  ● iTunes: {r_it} | Drag & Drop Activo | SQLite Smart Cache"
-        lbl_status = ctk.CTkLabel(ftr, text=txt_st, font=FUENTE_NORMAL, text_color="#30D158")
-        lbl_status.pack(side="left", padx=10, pady=5)
+        config = cargar_configuracion()
+        r_it = obtener_ruta_itunes_activa()
+        st_it = "🟢 iTunes: Activo" if r_it else "⚠ iTunes: No detectado"
+        col_it = COLOR_ACENTO_VERDE if r_it else COLOR_ACENTO_NARANJA
+        
+        lbl_it = ctk.CTkLabel(ftr, text=f"  {st_it}  ", font=FUENTE_PEQUENA, text_color="#FFFFFF", fg_color=col_it, corner_radius=10)
+        lbl_it.pack(side="left", padx=8, pady=6)
+
+        r_pc = config.get("ruta_biblioteca_pc")
+        txt_pc = f"🖥️ PC: {os.path.basename(r_pc)}" if r_pc else "🖥️ PC: No configurada"
+        lbl_pc = ctk.CTkLabel(ftr, text=f"  {txt_pc}  ", font=FUENTE_PEQUENA, text_color="#FFFFFF", fg_color="#3A3A3C", corner_radius=10)
+        lbl_pc.pack(side="left", padx=5, pady=6)
+
+        lbl_dnd = ctk.CTkLabel(ftr, text="  📥 Drag & Drop Activo  ", font=FUENTE_PEQUENA, text_color="#FFFFFF", fg_color=COLOR_ACENTO_AZUL, corner_radius=10)
+        lbl_dnd.pack(side="right", padx=10, pady=6)
