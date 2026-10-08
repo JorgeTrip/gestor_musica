@@ -1,3 +1,5 @@
+c1fd0a4 feat: Se agrega README.md completo con insignias de descarga ejecutable y documentación de características
+fc0de92 chore(release): Se actualiza versión a v4.0.2 [skip ci]
 af7d7c0 fix: Se corrige la inicialización de TkinterDnD._require(self) en VentanaPrincipal
 64251c2 chore(release): Se actualiza versión a v4.0.1 [skip ci]
 c1a0674 fix: Se otorga permiso write-all a GitHub Actions para push de tags y releases
