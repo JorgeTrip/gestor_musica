@@ -1,3 +1,5 @@
+7842520 fix: Se extrae únicamente el año de 4 dígitos de la etiqueta de lanzamiento evitando marcas de tiempo ISO y caracteres prohibidos en Windows
+03d21a5 chore(release): Se actualiza versión a v4.2.1 [skip ci]
 6d3c318 fix: Se corrige bloqueo de interfaz y se crean archivos y carpetas directamente en el destino sin modificar la carpeta de origen
 802d5a1 chore(release): Se actualiza versión a v4.2.0 [skip ci]
 aed7ce3 feat: Se implementa organización inteligente de la Biblioteca PC por Artista y Álbum ([año])
