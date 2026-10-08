@@ -1,3 +1,5 @@
+b5b16d1 feat: Se implementa la interfaz visual de resumen post-ingesta y el sistema de pills interactivos en la barra de estado
+219890e chore(release): Se actualiza versión a v4.3.0 [skip ci]
 4e95bf4 feat: Se implementa la copia intacta de videos musicales para la Biblioteca PC e herencia inteligente de metadatos
 5b6c6bb chore(release): Se actualiza versión a v4.2.2 [skip ci]
 7842520 fix: Se extrae únicamente el año de 4 dígitos de la etiqueta de lanzamiento evitando marcas de tiempo ISO y caracteres prohibidos en Windows
