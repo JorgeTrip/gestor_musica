@@ -69,7 +69,7 @@ jobs:
       run: |
         git config user.name "GitHub Actions Bot"
         git config user.email "actions@github.com"
-        git add version.json git-log.txt
+        git add version.json git-log.txt README.md
         $vData = Get-Content version.json | ConvertFrom-Json
         $tagVer = "v" + $vData.version
         git commit -m "chore(release): Se actualiza versión a $tagVer [skip ci]" || exit 0
