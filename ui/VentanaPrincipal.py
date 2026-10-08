@@ -28,7 +28,7 @@ from motores.motorChangelog import obtener_info_version
 class CTkTkinterDnD(ctk.CTk, TkinterDnD.DnDWrapper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.TkdndVersion = self._init_dnd(self)
+        self.TkdndVersion = TkinterDnD._require(self)
 
 class VentanaPrincipal(CTkTkinterDnD):
     def __init__(self):
