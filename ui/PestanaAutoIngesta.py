@@ -57,6 +57,9 @@ class PestanaAutoIngesta(ctk.CTkFrame):
         btn_itunes = ctk.CTkButton(pnl_btn, text="🍎 Carpeta iTunes", font=FUENTE_NORMAL, fg_color="#3A3A3C", hover_color="#4A4A4C", command=self.abrir_config_itunes)
         btn_itunes.pack(side="left", padx=8)
 
+        btn_pc = ctk.CTkButton(pnl_btn, text="🖥️ Biblioteca PC", font=FUENTE_NORMAL, fg_color="#3A3A3C", hover_color="#4A4A4C", command=self.abrir_config_pc)
+        btn_pc.pack(side="left", padx=8)
+
         self.configurar_dnd()
 
         self.progress_bar = ctk.CTkProgressBar(self, mode="determinate", progress_color=COLOR_ACENTO_VERDE)
@@ -85,6 +88,14 @@ class PestanaAutoIngesta(ctk.CTkFrame):
 
     def abrir_config_itunes(self):
         ModalConfiguracioniTunes(self, lambda r: self.log(f"✓ Ruta iTunes configurada: {r}"))
+
+    def abrir_config_pc(self):
+        config = cargar_configuracion()
+        r_act = config.get("ruta_biblioteca_pc") or ""
+        r_sel = ctk.filedialog.askdirectory(title="Seleccionar Carpeta Raíz de la Biblioteca de Música PC", initialdir=r_act if os.path.exists(r_act) else None)
+        if r_sel:
+            guardar_configuracion("ruta_biblioteca_pc", r_sel)
+            self.log(f"✓ Ruta Biblioteca PC configurada: {r_sel}")
 
     def seleccionar_archivos(self):
         archs = ctk.filedialog.askopenfilenames(title="Seleccionar Archivos de Música", filetypes=[("Audio", "*.m4a *.mp3 *.flac *.wav")])

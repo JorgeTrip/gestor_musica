@@ -131,8 +131,26 @@ def procesar_ingesta_lote(lista_rutas, destino_tipo, callback_progreso=None, cal
             registrar_ingesta_historial(fecha_hoy, "Celular (iTunes)", os.path.basename(r_dest), art, tit, alb, anio, pista, gen_final, "OK", "OK")
             verificar_e_iniciar_itunes_minimizado(callback_log)
         else:
-            gen_final = procesar_pipeline_pc(r_trabajo, callback_log)
-            registrar_ingesta_historial(fecha_hoy, "Biblioteca PC", os.path.basename(r_trabajo), art, tit, alb, anio, pista, gen_final, "OK", "OK")
+            art_c = re.sub(r'[\\/*?:"<>|]', '_', art)
+            alb_c = re.sub(r'[\\/*?:"<>|]', '_', alb)
+            tit_c = re.sub(r'[\\/*?:"<>|]', '_', tit)
+            fold_alb = f"{alb_c} ({anio})" if anio != "ND" else alb_c
+            dir_album_pc = os.path.join(ruta_pc_root, art_c, fold_alb)
+            if int(disco) > 1: dir_album_pc = os.path.join(dir_album_pc, f"Disco {int(disco)}")
+            os.makedirs(dir_album_pc, exist_ok=True)
+            
+            ext_trabajo = os.path.splitext(r_trabajo)[1].lower()
+            r_dest = os.path.join(dir_album_pc, f"{pista}. {tit_c}{ext_trabajo}")
+            
+            if ext in ['.flac', '.wav']:
+                gen_final = procesar_pipeline_pc(r_trabajo, callback_log)
+                shutil.move(r_trabajo, r_dest)
+            else:
+                shutil.copy2(r_src, r_dest)
+                gen_final = procesar_pipeline_pc(r_dest, callback_log)
+                
+            rel_p = os.path.relpath(r_dest, ruta_pc_root)
+            registrar_ingesta_historial(fecha_hoy, "Biblioteca PC", rel_p, art, tit, alb, anio, pista, gen_final, "OK", "OK")
             
         procesados_cnt += 1
         if callback_progreso: callback_progreso(idx, total, f"Procesado: {art} - {tit}")
@@ -142,8 +160,9 @@ def procesar_ingesta_lote(lista_rutas, destino_tipo, callback_progreso=None, cal
             if lista_f:
                 art, tit, alb, anio, pista, disco = extraer_metadatos_completos(lista_f[0])
                 art_c, alb_c = re.sub(r'[\\/*?:"<>|]', '_', art), re.sub(r'[\\/*?:"<>|]', '_', alb)
-                fold = f"{anio} - {alb_c}" if anio != "ND" else alb_c
-                r_zip = os.path.join(dir_flac, f"{fold} (FLAC Master).zip")
+                fold_alb = f"{alb_c} ({anio})" if anio != "ND" else alb_c
+                dir_album_pc = os.path.join(ruta_pc_root, art_c, fold_alb)
+                r_zip = os.path.join(dir_album_pc, f"{fold_alb} (FLAC Master).zip")
                 comprimir_flacs_zip9(lista_f, r_zip, callback_log)
 
     return True, f"Proceso de ingesta finalizado ({procesados_cnt} canciones ingresadas).", procesados_cnt
