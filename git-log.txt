@@ -1,3 +1,5 @@
+5740277 fix: Se agrega soporte dinámico para el nombre de carpeta Agregar automáticamente a iTunes en español e inglés
+26d89fa chore(release): Se actualiza versión a v4.1.0 [skip ci]
 c1fd0a4 feat: Se agrega README.md completo con insignias de descarga ejecutable y documentación de características
 fc0de92 chore(release): Se actualiza versión a v4.0.2 [skip ci]
 af7d7c0 fix: Se corrige la inicialización de TkinterDnD._require(self) en VentanaPrincipal
