@@ -1,3 +1,5 @@
+aed7ce3 feat: Se implementa organización inteligente de la Biblioteca PC por Artista y Álbum ([año])
+cc75629 chore(release): Se actualiza versión a v4.1.2 [skip ci]
 a7c9783 fix: Se preservan los archivos originales en la carpeta de origen al ingresar al Celular o PC
 0f1d4dc chore(release): Se actualiza versión a v4.1.1 [skip ci]
 5740277 fix: Se agrega soporte dinámico para el nombre de carpeta Agregar automáticamente a iTunes en español e inglés
