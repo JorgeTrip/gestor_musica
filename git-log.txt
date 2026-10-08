@@ -1,0 +1,5 @@
+c1a0674 fix: Se otorga permiso write-all a GitHub Actions para push de tags y releases
+19803bc fix: Se corrige sintaxis elseif de PowerShell en el workflow de CI/CD
+38e3437 fix: Se corrige detección de ejecutable Python313 y lanzamiento directo de exe en script bat
+8c784e1 fix: Se corrige codificación UTF-8 en script de compilación
+d52ae29 feat: Se inicializa repositorio del proyecto Gestor de Biblioteca Musical Pro v4.0
