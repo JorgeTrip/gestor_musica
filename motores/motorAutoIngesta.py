@@ -27,6 +27,17 @@ def verificar_e_iniciar_itunes_minimizado(callback_log=None):
     except Exception as e:
         if callback_log: callback_log(f"  ⚠ Aviso auto-inicio iTunes: {e}")
 
+def extraer_anio_cuatro_digitos(valor_raw):
+    if not valor_raw or str(valor_raw).strip() in ["ND", "", "None"]:
+        return "ND"
+    m = re.search(r'\b(18\d\d|19\d\d|20\d\d)\b', str(valor_raw))
+    if m:
+        return m.group(1)
+    str_val = str(valor_raw).strip()
+    if len(str_val) >= 4 and str_val[:4].isdigit():
+        return str_val[:4]
+    return "ND"
+
 def extraer_metadatos_completos(ruta_abs):
     ext = os.path.splitext(ruta_abs)[1].lower()
     art, tit, alb, anio, pista, disco = "Varios", "Desconocido", "Álbum", "ND", "01", "01"
@@ -36,7 +47,7 @@ def extraer_metadatos_completos(ruta_abs):
             art = audio.tags.get('\xa9ART', [art])[0]
             tit = audio.tags.get('\xa9nam', [tit])[0]
             alb = audio.tags.get('\xa9alb', [alb])[0]
-            anio = audio.tags.get('\xa9day', [anio])[0]
+            anio = extraer_anio_cuatro_digitos(audio.tags.get('\xa9day', ["ND"])[0])
             trkn = audio.tags.get('trkn', [(1, 1)])[0]; pista = f"{trkn[0]:02d}"
             disk = audio.tags.get('disk', [(1, 1)])[0]; disco = f"{disk[0]:02d}"
         elif ext == '.mp3':
@@ -44,7 +55,10 @@ def extraer_metadatos_completos(ruta_abs):
             if 'TPE1' in audio: art = str(audio['TPE1'].text[0])
             if 'TIT2' in audio: tit = str(audio['TIT2'].text[0])
             if 'TALB' in audio: alb = str(audio['TALB'].text[0])
-            if 'TDRC' in audio: anio = str(audio['TDRC'].text[0])
+            if 'TDRC' in audio:
+                anio = extraer_anio_cuatro_digitos(str(audio['TDRC'].text[0]))
+            elif 'TYER' in audio:
+                anio = extraer_anio_cuatro_digitos(str(audio['TYER'].text[0]))
             if 'TRCK' in audio: pista = f"{int(str(audio['TRCK'].text[0]).split('/')[0]):02d}"
     except Exception: pass
     return art, tit, alb, anio, pista, disco
@@ -136,6 +150,7 @@ def procesar_ingesta_lote(lista_rutas, destino_tipo, callback_progreso=None, cal
             verificar_e_iniciar_itunes_minimizado(callback_log)
         else:
             fold_alb = f"{alb_c} ({anio})" if anio != "ND" else alb_c
+            fold_alb = re.sub(r'[\\/*?:"<>|]', '_', fold_alb).strip()
             dir_album_pc = os.path.join(ruta_pc_root, art_c, fold_alb)
             if int(disco) > 1: dir_album_pc = os.path.join(dir_album_pc, f"Disco {int(disco)}")
             os.makedirs(dir_album_pc, exist_ok=True)
