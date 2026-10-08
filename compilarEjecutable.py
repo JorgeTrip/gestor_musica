@@ -9,6 +9,7 @@ import sys
 import tkinterdnd2
 import customtkinter
 
+sys.stdout.reconfigure(encoding='utf-8')
 DIRECTORIO_PROYECTO = os.path.dirname(os.path.abspath(__file__))
 
 def compilar():
