@@ -1,0 +1,3 @@
+# Forzar saltos de línea CRLF en scripts por lotes de Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf

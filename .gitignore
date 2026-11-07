@@ -19,6 +19,7 @@ configuracion.json
 # Node.js / Testing dependencies
 node_modules/
 package-lock.json
+test-results/
 
 # Operating System files
 .DS_Store
