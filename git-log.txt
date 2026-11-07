@@ -1,3 +1,5 @@
+cfbee9a fix: Se corrige script por lotes bat y se agrega blindaje gitattributes
+e490f55 chore(release): Se actualiza versión a v4.4.0 [skip ci]
 b5b16d1 feat: Se implementa la interfaz visual de resumen post-ingesta y el sistema de pills interactivos en la barra de estado
 219890e chore(release): Se actualiza versión a v4.3.0 [skip ci]
 4e95bf4 feat: Se implementa la copia intacta de videos musicales para la Biblioteca PC e herencia inteligente de metadatos
